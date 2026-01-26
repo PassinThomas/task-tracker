@@ -30,6 +30,7 @@ func init() {
 }
 
 func Execute() {
+	rootCmd.SilenceErrors = true
 	cobra.CheckErr(rootCmd.Execute())
 }
 
