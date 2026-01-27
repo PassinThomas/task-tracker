@@ -1,31 +1,31 @@
 package cmd
 
 import (
-	"fmt"
+	"task/internal/util"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	verbose bool
 	rootCmd = &cobra.Command{
 		Use:	"task",
 		Short:	"task tool",
 		Long:	"software to track to-do lists",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("Main command")
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
 		},
 	}
 )
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(
-		&verbose,
+		&util.Verbose,
 		"verbose",
 		"v",
 		false,
 		"verbose mode",
 	)
+	lstCmd.Flags().BoolVarP(&sort, "sort", "s", false, `sort todo-list ("name", "date", "done")`,)
 	rootCmd.AddCommand(addCmd, deleteCmd, updateCmd, lstCmd)
 }
 

@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"fmt"
 	"errors"
 
 	"task/internal/service"
+	// "task/internal/util"
 
 	"github.com/spf13/cobra"
 )
+
 
 var addCmd = &cobra.Command{
 	Use:	"add",
@@ -17,8 +20,10 @@ var addCmd = &cobra.Command{
 		}
 		err := service.Add(args[0])
 		if err != nil {
-			return errors.New("Add todo-list failed")
+			return fmt.Errorf("Add todo-list failed: %w", err)
 		}
+		fmt.Printf("Task %s created", args[0])
 		return nil
 	},
 }
+
