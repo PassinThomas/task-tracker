@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	// "errors"
+	"errors"
 	"time"
 	
 	"task/models"
@@ -14,13 +14,7 @@ import (
 
 func Add(title string) error {
 
-	err := util.ParseStr(title)
-	if err != nil {
-		util.Vlog(util.Verbose, fmt.Sprintf("%v", err))
-		return err
-	}
-
-	task := &models.Task{
+	task := models.Task{
 		ID:			uuid.New(),	
 		Title:		title,
 		Done:		false,
@@ -35,10 +29,21 @@ func Add(title string) error {
     	"CreatedAt", task.CreatedAt.Format("2006-01-02 15:04:05"),
 	)
 
-	if err = store.CreateTask(task); err != nil {
-		return err
+	if err := store.Save(task); err != nil {
+		return errors.New("save failed")
 	} 
-	
 	util.Vlog(util.Verbose, s)
 	return nil
 }
+
+// func Delete(title string) error {
+	
+// }
+
+// func update(title string) error {
+
+// }
+
+// func list(val ...any) {
+
+// }
