@@ -25,35 +25,32 @@ func Save(task models.Task) error {
 
     configPath := home + "/.config/.mycli"
     if err := os.MkdirAll(configPath, 0750); err != nil {
-		return err
+        return err
     }
-	
+
     filePath := configPath + "/todo.json"
 
-	var t []models.Task
-	if checkFile(filePath) {
-		read, err := os.ReadFile(filePath)
-		if err != nil {
-			return errors.New("Echec read file")
-		}
-		_ = json.Unmarshal(read, &t)
-		t = append(t, task)
-		fmt.Println(t)
-		data, e := json.MarshalIndent(t, "", "  ")
-		if e != nil {
-			return errors.New("json marshal failed")
-		}
-		return os.WriteFile(filePath, data, 0644)
-	}
+    var tasks []models.Task
 
-	data, e := json.MarshalIndent(task, "", "  ")
-	if e != nil {
-		return errors.New("json marshal failed")
-	}
-	return os.WriteFile(filePath, data, 0644)
+    if checkFile(filePath) {
+        read, err := os.ReadFile(filePath)
+        if err != nil {
+            return err
+        }
+
+        _ = json.Unmarshal(read, &tasks)
+    }
+
+    tasks = append(tasks, task)
+
+    data, err := json.MarshalIndent(tasks, "", "  ")
+    if err != nil {
+        return err
+    }
+
+    return os.WriteFile(filePath, data, 0644)
 }
 
-// ...existing code...
 func List() {
     filePath := "/home/tpassin/.config/.mycli/todo.json"
     content, err := os.ReadFile(filePath)
@@ -70,4 +67,3 @@ func List() {
 
     fmt.Println(data)
 }
-// ...existing code...
