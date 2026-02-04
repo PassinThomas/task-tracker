@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"fmt"
+	// "fmt"
 	// "errors"
-	"task/internal/util"
+	// "task/internal/util"
+	"task/internal/service"
 
 	"github.com/spf13/cobra"
 )
@@ -11,15 +12,13 @@ import (
 
 
 var (
-	sort bool
+	option string
 	lstCmd = &cobra.Command{
 		Use:	"list",
 		Short:	"print to-do list",
+		 Long:  "Print to-do list. Use --status=done or --status=not-done to filter.",
 		RunE:	func(cmd *cobra.Command, args []string) error{
-			if sort {
-				util.Vlog(util.Verbose, "Sorted actived")
-			}
-			fmt.Println("Test numero 1")
+			service.List(&option)
 			return nil
 		},
 	}

@@ -27,7 +27,7 @@ var addCmd = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("Add todo-list failed: %w", err)
 		}
-		fmt.Printf("Task %s created", args[0])
+		util.Vlog(util.Verbose, "Task %s created" + args[0])
 		return nil
 	},
 }

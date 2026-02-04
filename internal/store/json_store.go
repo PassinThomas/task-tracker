@@ -1,12 +1,18 @@
 package store
 
 import (
-	"fmt"
+    // "fmt"
 	"os"
+    "path/filepath"
 	"encoding/json"
 	"errors"
 
 	"task/models"
+)
+
+const (
+    pathCli = "/.config/.mycli"
+    fileStore = "/todo.json"
 )
 
 func checkFile(file string) bool {
@@ -17,30 +23,31 @@ func checkFile(file string) bool {
 	return true
 }
 
+// func displayTask()
+
 func Save(task models.Task) error {
     home, err := os.UserHomeDir()
     if err != nil {
         return err
     }
 
-    configPath := home + "/.config/.mycli"
+    configPath := filepath.Join(home, pathCli)
     if err := os.MkdirAll(configPath, 0750); err != nil {
         return err
     }
 
-    filePath := configPath + "/todo.json"
+    path := filepath.Join(configPath, fileStore)
 
     var tasks []models.Task
 
-    if checkFile(filePath) {
-        read, err := os.ReadFile(filePath)
+    if checkFile(path) {
+        read, err := os.ReadFile(path)
         if err != nil {
             return err
         }
 
         _ = json.Unmarshal(read, &tasks)
     }
-
     tasks = append(tasks, task)
 
     data, err := json.MarshalIndent(tasks, "", "  ")
@@ -48,22 +55,19 @@ func Save(task models.Task) error {
         return err
     }
 
-    return os.WriteFile(filePath, data, 0644)
+    return os.WriteFile(path, data, 0644)
 }
 
-func List() {
-    filePath := "/home/tpassin/.config/.mycli/todo.json"
-    content, err := os.ReadFile(filePath)
+func AllList() ([]models.Task, error)  {
+    path := filepath.Join(os.Getenv("HOME"), pathCli, fileStore)
+    content, err := os.ReadFile(path)
     if err != nil {
-        fmt.Println("Echec read file:", err)
-        return
+        return []models.Task{}, errors.New("Echec read file")
     }
 
-    var data models.Task
+    var data []models.Task
     if err := json.Unmarshal(content, &data); err != nil {
-        fmt.Println("Error décodage JSON:", err)
-        return
+        return []models.Task{}, errors.New("Error décodage JSON:")
     }
-
-    fmt.Println(data)
+    return data, nil
 }

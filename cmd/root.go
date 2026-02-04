@@ -25,7 +25,7 @@ func init() {
 		false,
 		"verbose mode",
 	)
-	lstCmd.Flags().BoolVarP(&sort, "sort", "s", false, `sort todo-list ("name", "date", "done")`,)
+	lstCmd.Flags().StringVarP(&option, "status", "s", "", `display-list ("not-done", "done")`,)
 	rootCmd.AddCommand(addCmd, deleteCmd, updateCmd, lstCmd)
 }
 
