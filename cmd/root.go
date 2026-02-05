@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"task/internal/util"
+	"task/internal/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -19,13 +19,15 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(
-		&util.Verbose,
+		&utils.Verbose,
 		"verbose",
 		"v",
 		false,
 		"verbose mode",
 	)
 	lstCmd.Flags().StringVarP(&option, "status", "s", "", `display-list ("not-done", "done")`,)
+	lstCmd.Flags().StringVarP(&sorting, "sort", "", "", `sort-task by ("title", "date", "status")`)
+	deleteCmd.Flags().StringVarP(&delete, "del", "d", "", "Delete a task by its title (use: --del \"task title\" or -d \"task title\")")
 	rootCmd.AddCommand(addCmd, deleteCmd, updateCmd, lstCmd)
 }
 

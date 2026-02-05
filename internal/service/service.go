@@ -7,7 +7,7 @@ import (
 	"os"
 	
 	"task/models"
-	"task/internal/util"
+	"task/internal/utils"
 	"task/internal/store"
 
 	"github.com/olekukonko/tablewriter"
@@ -43,32 +43,50 @@ func Add(title string) error {
 		"CreatedAt", task.CreatedAt.Format("2006-01-02 15:04"),
 	)
 
-	util.Vlog(util.Verbose, s)
+	utils.Vlog(utils.Verbose, s)
 	return nil
 }
 
-// func Delete(title string) error {
-	
-// }
+func Delete(title string) error {
+	tasks, err := store.AllList()
+	if err != nil {
+		return errors.New("Cannot delete empty task")
+	}
+
+	var task []models.Task
+	for _, t := range tasks {
+		if t.Title == title {
+			continue ;
+		} else {
+			task = append(task, t) 
+		}
+	}
+	return store.DeleteTask(task)	
+}
 
 // func update(title string) error {
 
 // }
 
-func List(opt *string) error {
+
+func List(opt string, sorting string) error {
 	tasks, err := store.AllList()
 	if err != nil {
 		return errors.New("Failed display tasks")
 	}
 	
+	if sorting != "" {
+		utils.SortingTask(sorting, tasks)
+	}
+	
 	table := tablewriter.NewWriter(os.Stdout)
-    table.Header("ID", "Title", "Status", "Created At")
+    table.Header([]string{"ID", "Title", "Status", "Created At"})
     for _, task := range tasks {
         status := "not-done"
         if task.Done {
             status = "done"
         }
-		if opt != nil && *opt != status{
+		if opt != "" && opt != status{
 			continue ;
 		}
         table.Append([]string{

@@ -58,6 +58,23 @@ func Save(task models.Task) error {
     return os.WriteFile(path, data, 0644)
 }
 
+func DeleteTask(tasks []models.Task) error {
+    data, err := json.MarshalIndent(tasks, "", "  ")
+    if err != nil {
+        return err
+    }
+
+    home, err2 := os.UserHomeDir()
+    if err2 != nil {
+        return err2
+    }
+
+    configPath := filepath.Join(home, pathCli)
+    path := filepath.Join(configPath, fileStore)
+
+    return os.WriteFile(path, data, 0644)
+}
+
 func AllList() ([]models.Task, error)  {
     path := filepath.Join(os.Getenv("HOME"), pathCli, fileStore)
     content, err := os.ReadFile(path)

@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"task/internal/service"
-	"task/internal/util"
+	"task/internal/utils"
 
 	"github.com/spf13/cobra"
 )
@@ -18,16 +18,16 @@ var addCmd = &cobra.Command{
 		if len(args) != 1 {
 			return errors.New("Wrong arguments")
 		}
-		err := util.ParseStr(args[0])
+		err := utils.ParseStr(args[0])
 		if err != nil {
-			util.Vlog(util.Verbose, fmt.Sprintf("%v", err))
+			utils.Vlog(utils.Verbose, fmt.Sprintf("%v", err))
 			return fmt.Errorf("Incorrect format: %w", err)
 		}
 		err = service.Add(args[0])
 		if err != nil {
 			return fmt.Errorf("Add todo-list failed: %w", err)
 		}
-		util.Vlog(util.Verbose, "Task %s created" + args[0])
+		utils.Vlog(utils.Verbose, "Task %s created" + args[0])
 		return nil
 	},
 }
