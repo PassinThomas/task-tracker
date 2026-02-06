@@ -19,9 +19,7 @@ const (
     fileStore = "/todo.json"
 )
 
-var (
-	Verbose bool
-)
+var Verbose bool
 
 func Vlog(s string) {
 	if Verbose == true {
