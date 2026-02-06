@@ -3,52 +3,19 @@ package store
 import (
     // "fmt"
 	"os"
-    "path/filepath"
 	"encoding/json"
 	"errors"
-
+    
+    "task/internal/utils"
 	"task/models"
 )
 
-const (
-    pathCli = "/.config/.mycli"
-    fileStore = "/todo.json"
-)
-
-func checkFile(file string) bool {
-	_, err := os.Stat(file)
-	if err != nil {
-		return false
-	}
-	return true
-}
-
-// func displayTask()
-
-func Save(task models.Task) error {
-    home, err := os.UserHomeDir()
+func Save(tasks []models.Task) error {
+   
+    path, err := utils.GeneratePath()
     if err != nil {
-        return err
+        return errors.New("Failed to generate path file")
     }
-
-    configPath := filepath.Join(home, pathCli)
-    if err := os.MkdirAll(configPath, 0750); err != nil {
-        return err
-    }
-
-    path := filepath.Join(configPath, fileStore)
-
-    var tasks []models.Task
-
-    if checkFile(path) {
-        read, err := os.ReadFile(path)
-        if err != nil {
-            return err
-        }
-
-        _ = json.Unmarshal(read, &tasks)
-    }
-    tasks = append(tasks, task)
 
     data, err := json.MarshalIndent(tasks, "", "  ")
     if err != nil {
@@ -58,25 +25,13 @@ func Save(task models.Task) error {
     return os.WriteFile(path, data, 0644)
 }
 
-func DeleteTask(tasks []models.Task) error {
-    data, err := json.MarshalIndent(tasks, "", "  ")
-    if err != nil {
-        return err
-    }
-
-    home, err2 := os.UserHomeDir()
-    if err2 != nil {
-        return err2
-    }
-
-    configPath := filepath.Join(home, pathCli)
-    path := filepath.Join(configPath, fileStore)
-
-    return os.WriteFile(path, data, 0644)
-}
 
 func AllList() ([]models.Task, error)  {
-    path := filepath.Join(os.Getenv("HOME"), pathCli, fileStore)
+    path, errPath := utils.GeneratePath()
+    if errPath != nil {
+        return []models.Task{}, errors.New("Generate path failed")
+    }
+
     content, err := os.ReadFile(path)
     if err != nil {
         return []models.Task{}, errors.New("Echec read file")

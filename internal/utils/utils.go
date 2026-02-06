@@ -5,6 +5,9 @@ import (
 	"strings"
 	"errors"
 	"sort"
+	"os"
+	"path/filepath"
+	
 	"task/models"
 )
 
@@ -12,15 +15,17 @@ const (
 	date = "date"
 	title = "title"
 	status = "status"
+    pathCli = "/.config/.mycli"
+    fileStore = "/todo.json"
 )
 
 var (
 	Verbose bool
 )
 
-func Vlog(v bool, s string) {
-	if v == true {
-		fmt.Println(s)
+func Vlog(s string) {
+	if Verbose == true {
+		fmt.Fprintf(os.Stderr, s)
 	}
 	return
 }
@@ -45,12 +50,12 @@ func SortingTask(sorting string, tasks []models.Task) {
 		task = append(task, t)
 	}
 	sort.Slice(task, func(i, j int)bool {
-		if sorting == "title" {
-			return task[i].Title < task[j].Title
+		if sorting == title {
+			return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)
 		}
-		if sorting == "date" {
+		if sorting == date {
 			return task[i].CreatedAt.String() > task[j].CreatedAt.String()
-		} else if sorting == "status" {
+		} else if sorting == status {
     		statusI := "not-done"
     		statusJ := "not-done"
     		if task[i].Done {
@@ -65,3 +70,27 @@ func SortingTask(sorting string, tasks []models.Task) {
 	})
 	copy(tasks, task)
 } 
+
+// func CheckFile(file string) bool {
+// 	_, err := os.Stat(file)
+// 	if err != nil {
+// 		return false
+// 	}
+// 	return true
+// }
+
+
+func GeneratePath() (string, error) {
+    home, err := os.UserHomeDir()
+    if err != nil {
+        return "", err
+    }
+
+    configPath := filepath.Join(home, pathCli)
+    if err := os.MkdirAll(configPath, 0750); err != nil {
+        return "", err
+    }
+
+    path := filepath.Join(configPath, fileStore)
+    return path, nil
+}

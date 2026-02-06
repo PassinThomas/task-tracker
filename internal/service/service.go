@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"errors"
 	"time"
 	"os"
@@ -25,13 +26,14 @@ func Add(title string) error {
 
 	task := models.Task{
 		ID:			newID,	
-		Title:		title,
+		Title:		strings.ToLower(title),
 		Done:		false,
 		CreatedAt:	time.Now(),
 	}
 
+	tasks = append(tasks, task)
 	
-	if err := store.Save(task); err != nil {
+	if err := store.Save(tasks); err != nil {
 		return errors.New("save failed")
 	}
 
@@ -43,7 +45,7 @@ func Add(title string) error {
 		"CreatedAt", task.CreatedAt.Format("2006-01-02 15:04"),
 	)
 
-	utils.Vlog(utils.Verbose, s)
+	utils.Vlog(s)
 	return nil
 }
 
@@ -61,12 +63,34 @@ func Delete(title string) error {
 			task = append(task, t) 
 		}
 	}
-	return store.DeleteTask(task)	
+	return store.Save(task)	
 }
 
-// func update(title string) error {
+func Update(id int, markDone *bool, newTitle *string) error {
+	tasks, err := store.AllList()
+	if err != nil {
+		return errors.New("Cannot update empty task")
+	}
+	
+	if newTitle == nil && markDone == nil {
+        return fmt.Errorf("No changes requested")
+    }
 
-// }
+	var task []models.Task
+	for _, t := range tasks {
+		if t.ID == id {
+			if newTitle != nil && *newTitle != "" && *newTitle != t.Title {
+				t.Title = *newTitle
+			}
+			if markDone != nil && t.Done != *markDone {
+				t.Done = *markDone
+			}
+		}
+		task = append(task, t)
+	}
+	return store.Save(task)	
+
+}
 
 
 func List(opt string, sorting string) error {
@@ -76,6 +100,9 @@ func List(opt string, sorting string) error {
 	}
 	
 	if sorting != "" {
+		if sorting != "date" && sorting != "title" && sorting != "status" {
+			return errors.New("Unknown option")
+		}
 		utils.SortingTask(sorting, tasks)
 	}
 	

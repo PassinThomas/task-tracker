@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	// "fmt"
-	"errors"
-	// "task/internal/utils"
+	"fmt"
+
 	"task/internal/service"
 
 	"github.com/spf13/cobra"
@@ -19,11 +18,11 @@ var (
 		Short:	"print to-do list",
 		Long:  "Print to-do list. Use --status=done or --status=not-done to filter.",
 		// Long:  `Print to-do list. Use --sort=("title", "date", "status").`,
-		RunE:	func(cmd *cobra.Command, args []string) error{
-			if len(args) != 0 {
-				return errors.New("Wrong number of arguments")
+		RunE:	func(cmd *cobra.Command, args []string) error {
+			err := service.List(option, sorting)
+			if err != nil {
+				return fmt.Errorf("%w", err)
 			}
-			service.List(option, sorting)
 			return nil
 		},
 	}

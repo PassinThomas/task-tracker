@@ -26,8 +26,9 @@ func init() {
 		"verbose mode",
 	)
 	lstCmd.Flags().StringVarP(&option, "status", "s", "", `display-list ("not-done", "done")`,)
-	lstCmd.Flags().StringVarP(&sorting, "sort", "", "", `sort-task by ("title", "date", "status")`)
-	deleteCmd.Flags().StringVarP(&delete, "del", "d", "", "Delete a task by its title (use: --del \"task title\" or -d \"task title\")")
+	lstCmd.Flags().StringVarP(&sorting, "sort", "", "", `sort-task by ("title", "date(by Newest)", "status")`)
+	updateCmd.Flags().StringVarP(&newTitle, "title", "", "", "update title of task")
+	updateCmd.Flags().BoolVarP(&markDone, "done", "", false, "mark done task finished")
 	rootCmd.AddCommand(addCmd, deleteCmd, updateCmd, lstCmd)
 }
 
