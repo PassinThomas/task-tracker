@@ -1,11 +1,12 @@
 package main
 
 import(
-	
-	 "task/cmd"
+	"log/slog"
+	"task/cmd"
 )
 	
 func main() {
+	slog.Info("Hello task-cli")
 	cmd.Execute()
 }
 

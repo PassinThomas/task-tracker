@@ -19,16 +19,8 @@ const (
     fileStore = "/todo.json"
 )
 
-var (
-	Verbose bool
-)
+var Debug bool
 
-func Vlog(s string) {
-	if Verbose == true {
-		fmt.Fprintf(os.Stderr, s)
-	}
-	return
-}
 
 func ParseStr(s string) error {
 	if strings.TrimSpace(s) == "" {

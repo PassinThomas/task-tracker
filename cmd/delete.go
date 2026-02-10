@@ -15,6 +15,7 @@ var (
 	Short:	"Command to delete to-do list",
 	// Long: "Delete a task from the to-do list by its name. Example: task delete -d \"task name\"",
 	Args: cobra.ExactArgs(1),
+	SilenceUsage: true,
 	RunE:	func(cmd *cobra.Command, args []string) error {
 		err := service.Delete(args[0])
 		if err != nil {

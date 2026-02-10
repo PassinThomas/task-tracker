@@ -16,6 +16,7 @@ var (
 		updateCmd = &cobra.Command{
 		Use:	"update",
 		Short:	"Command to update to-do list",
+		SilenceUsage: true,
 		Args:	cobra.ExactArgs(1),
 		RunE:	func(cmd *cobra.Command, args []string) error {
 			value, errAtoi := strconv.Atoi(args[0])

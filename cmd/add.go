@@ -14,6 +14,7 @@ var addCmd = &cobra.Command{
 	Use:	"add",
 	Short:	"Command to add to-do list",
 	Args: cobra.ExactArgs(1),
+	SilenceUsage: true,
 	RunE:	func(cmd *cobra.Command, args []string) error {
 		err := utils.ParseStr(args[0])
 		if err != nil {
