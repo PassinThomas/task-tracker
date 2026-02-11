@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"strings"
 	"errors"
 	"sort"
@@ -19,7 +18,7 @@ const (
     fileStore = "/todo.json"
 )
 
-var Debug bool
+var DebugVar bool
 
 
 func ParseStr(s string) error {

@@ -12,6 +12,10 @@ var (
 		Short:	"task tool",
 		Long:	"software to track to-do lists",
 		SilenceUsage: true,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+            // Ici, utils.DebugVar contient la vraie valeur passée par l'utilisateur
+            utils.InitLogger(utils.DebugVar)
+        },
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},
@@ -20,13 +24,12 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(
-		&utils.Debug,
+		&utils.DebugVar,
 		"debug",
 		"d",
 		false,
-		"debug mode",
+		"debug mode enabled",
 	)
-	utils.InitLogger(utils.Debug)
 
 	lstCmd.Flags().StringVarP(&option, "status", "s", "", `display-list ("not-done", "done")`,)
 	lstCmd.Flags().StringVarP(&sorting, "sort", "", "", `sort-task by ("title", "date(by Newest)", "status")`)
@@ -37,6 +40,7 @@ func init() {
 
 func Execute() {
 	rootCmd.SilenceErrors = true
+	utils.InitLogger(utils.DebugVar)
 	cobra.CheckErr(rootCmd.Execute())
 }
 

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
 
 	"task/internal/service"
 	"task/internal/utils"
@@ -17,11 +18,20 @@ var (
 	Args: cobra.ExactArgs(1),
 	SilenceUsage: true,
 	RunE:	func(cmd *cobra.Command, args []string) error {
-		err := service.Delete(args[0])
-		if err != nil {
-			return fmt.Errorf("Delete task impossible: %w", err)
+		utils.Debug("Run delete process...",
+			"cmd", "delete",
+			"task_id", args[0],
+		)
+		v, errAtoi := strconv.Atoi(args[0])
+		if errAtoi != nil {
+			return fmt.Errorf("Echec conversion of delete cmd")
 		}
-		utils.Vlog("Task deleted")
+		task, err := service.Delete(v)
+		if err != nil {
+			return err
+		}
+		utils.Debug("Task deleted", task)
+		fmt.Printf("✓ Task %d deleted successfully\n", task.ID)
 		return nil
 	},
 })

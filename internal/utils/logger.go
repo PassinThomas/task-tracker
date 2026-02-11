@@ -3,6 +3,7 @@ package utils
 import (
     "log/slog"
     "os"
+    "io"
 )
 
 var Logger *slog.Logger
@@ -18,7 +19,7 @@ func InitLogger(debug bool) {
     } else {
         // Mode silencieux : On jette les logs à la poubelle (/dev/null)
         // C'est plus performant et plus sûr que de filtrer le niveau Info
-        Logger = slog.New(slog.NewTextHandler(os.Discard, nil)) // Discard ne fait rien
+        Logger = slog.New(slog.NewTextHandler(io.Discard, nil)) // Discard ne fait rien
     }
 }
 

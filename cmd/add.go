@@ -16,16 +16,20 @@ var addCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	SilenceUsage: true,
 	RunE:	func(cmd *cobra.Command, args []string) error {
-		err := utils.ParseStr(args[0])
-		if err != nil {
-			utils.Vlog(fmt.Sprintf("%v", err))
-			return fmt.Errorf("Bad format: %w", err)
+		utils.Debug("Run add process...",
+			"cmd", "add",
+			"task_name", args[0],
+		)
+		errParse := utils.ParseStr(args[0])
+		if errParse != nil {
+			return fmt.Errorf("Bad format: %w", errParse)
 		}
-		err = service.Add(args[0])
+		task, err := service.Add(args[0])
 		if err != nil {
-			return fmt.Errorf("Add todo-list failed: %w", err)
+			return err
 		}
-		utils.Vlog("Task %s created" + args[0])
+		utils.Debug("task added", task)
+		fmt.Printf("✓ Task %d created successfully\n", task.ID)
 		return nil
 	},
 }

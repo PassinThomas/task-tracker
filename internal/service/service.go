@@ -5,16 +5,14 @@ import (
 	"strings"
 	"errors"
 	"time"
-	"os"
 	
 	"task/models"
 	"task/internal/utils"
 	"task/internal/store"
 
-	"github.com/olekukonko/tablewriter"
 )
 
-func Add(title string) error {
+func Add(title string) (*models.Task, error) {
 
 	tasks, _ := store.AllList()
     newID := 1
@@ -34,80 +32,84 @@ func Add(title string) error {
 	tasks = append(tasks, task)
 	
 	if err := store.Save(tasks); err != nil {
-		return errors.New("save failed")
+		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
 	}
 
-	s := fmt.Sprintf(
-		"%-12s: %v\n%-12s: %v\n%-12s: %v\n%-12s: %v",
-		"ID", task.ID,
-		"Title", task.Title,
-		"Done", task.Done,
-		"CreatedAt", task.CreatedAt.Format("2006-01-02 15:04"),
-	)
-
-	utils.Vlog(s)
-	return nil
+	return &task, nil
 }
 
-func Delete(title string) error {
+func Delete(id int) (*models.Task, error) {
 	tasks, err := store.AllList()
 	if err != nil {
-		return errors.New("Cannot delete empty task")
+		return &models.Task{}, fmt.Errorf("Cannot delete empty task %w", err)
 	}
 
 	var task []models.Task
+	var delTask models.Task
 	for _, t := range tasks {
-		if t.Title == title {
+		if t.ID == id {
+			delTask = t
 			continue ;
 		} else {
 			task = append(task, t) 
 		}
 	}
-	return store.Save(task)	
+	err = store.Save(task)
+	if err != nil {
+		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
+	}
+
+	return &delTask, nil
 }
 
-func Update(id int, markDone *bool, newTitle *string) error {
+func Update(id int, markDone *bool, newTitle *string) (*models.Task, error) {
 	tasks, err := store.AllList()
 	if err != nil {
-		return errors.New("Cannot update empty task")
+		return &models.Task{}, fmt.Errorf("Cannot update empty task %w", err)
 	}
 	
 	if newTitle == nil && markDone == nil {
-        return fmt.Errorf("No changes requested")
+        return &models.Task{}, errors.New("No changes requested")
     }
 
 	var task []models.Task
+	var taskUpt models.Task
 	for _, t := range tasks {
 		if t.ID == id {
 			if newTitle != nil && *newTitle != "" && *newTitle != t.Title {
 				t.Title = *newTitle
+				taskUpt = t
 			}
 			if markDone != nil && t.Done != *markDone {
 				t.Done = *markDone
+				taskUpt = t
 			}
 		}
 		task = append(task, t)
 	}
-	return store.Save(task)	
-
+	
+	err = store.Save(task)
+	if err != nil {
+		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
+	}
+	return &taskUpt, nil
 }
 
 
-func List(opt string, sorting string) error {
+func List(opt string, sorting string) ([]models.Task, error) {
 	tasks, err := store.AllList()
 	if err != nil {
-		return errors.New("Failed display tasks")
+		return []models.Task{}, fmt.Errorf("Failed get All tasks %w", err)
 	}
 	
 	if sorting != "" {
 		if sorting != "date" && sorting != "title" && sorting != "status" {
-			return errors.New("Unknown option")
+			return []models.Task{}, errors.New("Unknown option")
 		}
 		utils.SortingTask(sorting, tasks)
 	}
-	
-	table := tablewriter.NewWriter(os.Stdout)
-    table.Header([]string{"ID", "Title", "Status", "Created At"})
+
+	var t []models.Task
     for _, task := range tasks {
         status := "not-done"
         if task.Done {
@@ -116,13 +118,8 @@ func List(opt string, sorting string) error {
 		if opt != "" && opt != status{
 			continue ;
 		}
-        table.Append([]string{
-            fmt.Sprintf("%v", task.ID),
-            task.Title,
-            status,
-            task.CreatedAt.Format("2006-01-02 15:04"),
-        })
-    }
-    table.Render()
-	return nil
+		t = append(t, task)
+	}
+
+	return t, nil
 }
