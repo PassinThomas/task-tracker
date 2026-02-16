@@ -31,8 +31,9 @@ func init() {
 		"debug mode enabled",
 	)
 
-	lstCmd.Flags().StringVarP(&option, "status", "s", "", `display-list ("not-done", "done")`,)
-	lstCmd.Flags().StringVarP(&sorting, "sort", "", "", `sort-task by ("title", "date(by Newest)", "status")`)
+	lstCmd.Flags().StringVarP(&status, "status", "s", "", `display-list ("not-done", "done")`,)
+	lstCmd.Flags().StringVarP(&sorting, "sort", "", "", "specify the field to sort tasks by; valid options are 'title', 'created' (newest first), 'updated', or 'status'")
+	lstCmd.Flags().StringVarP(&order, "order", "", "",  "set the sort order for tasks; options are 'asc' for ascending or 'desc' for descending")
 	updateCmd.Flags().StringVarP(&newTitle, "title", "", "", "update title of task")
 	updateCmd.Flags().BoolVarP(&markDone, "done", "", false, "mark done task finished")
 	rootCmd.AddCommand(addCmd, deleteCmd, updateCmd, lstCmd)

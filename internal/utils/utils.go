@@ -1,10 +1,11 @@
 package utils
 
 import (
+	"os"
+	"fmt"
 	"strings"
 	"errors"
-	"sort"
-	"os"
+
 	"path/filepath"
 	
 	"task/models"
@@ -18,8 +19,10 @@ const (
     fileStore = "/todo.json"
 )
 
-var DebugVar bool
-
+var (
+	DebugVar bool
+	OptSort = make(map[string]string)
+)
 
 func ParseStr(s string) error {
 	if strings.TrimSpace(s) == "" {
@@ -34,41 +37,47 @@ func ParseStr(s string) error {
 	return nil
 }
 
-func SortingTask(sorting string, tasks []models.Task) {
+// func SortingTask(sorting string, tasks []models.Task) {
 
-	var task []models.Task
-	for _, t := range tasks {
-		task = append(task, t)
-	}
-	sort.Slice(task, func(i, j int)bool {
-		if sorting == title {
-			return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)
-		}
-		if sorting == date {
-			return task[i].CreatedAt.String() > task[j].CreatedAt.String()
-		} else if sorting == status {
-    		statusI := "not-done"
-    		statusJ := "not-done"
-    		if task[i].Done {
-    		    statusI = "done"
-    		}
-    		if task[j].Done {
-    		    statusJ = "done"
-    		}
-    		return statusI < statusJ
-		}
-		return false
-	})
-	copy(tasks, task)
-} 
-
-// func CheckFile(file string) bool {
-// 	_, err := os.Stat(file)
-// 	if err != nil {
-// 		return false
+// 	var task []models.Task
+// 	for _, t := range tasks {
+// 		task = append(task, t)
 // 	}
-// 	return true
-// }
+// 	sort.Slice(task, func(i, j int)bool {
+// 		if sorting == title {
+// 			return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)
+// 		}
+// 		if sorting == date {
+// 			return task[i].CreatedAt.String() > task[j].CreatedAt.String()
+// 		} else if sorting == status {
+//     		statusI := "not-done"
+//     		statusJ := "not-done"
+//     		if task[i].Done {
+//     		    statusI = "done"
+//     		}
+//     		if task[j].Done {
+//     		    statusJ = "done"
+//     		}
+//     		return statusI < statusJ
+// 		}
+// 		return false
+// 	})
+// 	copy(tasks, task)
+// } 
+
+func CheckField(field string) error {
+
+	validFields := map[string]bool{
+		"title": true,
+		"created": true,
+		"updated": true,
+	}
+	
+	if !validFields[field] {
+		return errors.New("Unknown sort field")
+	}
+	return nil
+}
 
 
 func GeneratePath() (string, error) {
@@ -84,4 +93,12 @@ func GeneratePath() (string, error) {
 
     path := filepath.Join(configPath, fileStore)
     return path, nil
+}
+
+func UpadtedFormat(task models.Task) string {
+	if task.CreatedAt.Format("2006-01-02 15:04") > task.UpdatedAt.Format("2006-01-02 15:04") {
+		return fmt.Sprintf("none")
+	} else {
+		return task.UpdatedAt.Format("2006-01-02 15:04")
+	}
 }

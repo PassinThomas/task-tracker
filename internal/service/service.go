@@ -5,6 +5,7 @@ import (
 	"strings"
 	"errors"
 	"time"
+	"sort"
 	
 	"task/models"
 	"task/internal/utils"
@@ -79,11 +80,14 @@ func Update(id int, markDone *bool, newTitle *string) (*models.Task, error) {
 			if newTitle != nil && *newTitle != "" && *newTitle != t.Title {
 				t.Title = *newTitle
 				taskUpt = t
+				t.UpdatedAt = time.Now()
 			}
 			if markDone != nil && t.Done != *markDone {
 				t.Done = *markDone
 				taskUpt = t
+				t.UpdatedAt = time.Now()
 			}
+			
 		}
 		task = append(task, t)
 	}
@@ -96,30 +100,72 @@ func Update(id int, markDone *bool, newTitle *string) (*models.Task, error) {
 }
 
 
-func List(opt string, sorting string) ([]models.Task, error) {
+func List() ([]models.Task, error) {
 	tasks, err := store.AllList()
 	if err != nil {
 		return []models.Task{}, fmt.Errorf("Failed get All tasks %w", err)
 	}
+
+	return tasks, nil
+}
+
+func SortList(tasks []models.Task, sorting map[string]string) ([]models.Task, error) {
 	
-	if sorting != "" {
-		if sorting != "date" && sorting != "title" && sorting != "status" {
-			return []models.Task{}, errors.New("Unknown option")
-		}
-		utils.SortingTask(sorting, tasks)
+	task, field := []models.Task{}, ""
+	for _, t := range tasks {
+		task = append(task, t)
 	}
-
-	var t []models.Task
-    for _, task := range tasks {
-        status := "not-done"
-        if task.Done {
-            status = "done"
-        }
-		if opt != "" && opt != status{
-			continue ;
+	for k, v := range sorting {
+		field = k
+		err := utils.CheckField(field)
+		if err != nil {
+			return []models.Task{}, fmt.Errorf("Flag option undefined: %w", err)
 		}
-		t = append(t, task)
+		if v != "asc" && v != "" && v != "desc" {
+			return []models.Task{}, errors.New("Bad order flag or undefined")
+		}
 	}
+	
+	sort.Slice(task, func(i, j int)bool {
+		switch field {
+			case "title":
+				if sorting[field] == "asc" || sorting[field] == "" {
+					return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)	
+				} else {
+					return strings.ToLower(task[i].Title) > strings.ToLower(task[j].Title)	
+				}
+			
+			case "created":
+				if sorting[field] == "asc" || sorting[field] == "" {
+					if task[i].CreatedAt.Format("2006-01-02 15:04") == task[j].CreatedAt.Format("2006-01-02 15:04") {
+						return task[i].ID < task[j].ID
+					}
+					return task[i].CreatedAt.Format("2006-01-02 15:04") < task[j].CreatedAt.Format("2006-01-02 15:04")
+				} else {
+					if task[i].CreatedAt.Format("2006-01-02 15:04") == task[j].CreatedAt.Format("2006-01-02 15:04") {
+						return task[i].ID > task[j].ID
+					}
+					return task[i].CreatedAt.Format("2006-01-02 15:04") > task[j].CreatedAt.Format("2006-01-02 15:04")
+				}
 
-	return t, nil
+			case "updated":
+				if sorting[field] == "desc" || sorting[field] == "" {
+					if task[i].UpdatedAt.Format("2006-01-02 15:04") == task[j].UpdatedAt.Format("2006-01-02 15:04") {
+						return task[i].ID < task[j].ID
+					}
+					return task[i].UpdatedAt.Format("2006-01-02 15:04") > task[j].UpdatedAt.Format("2006-01-02 15:04")
+				} else {
+					if task[i].UpdatedAt.Format("2006-01-02 15:04") == task[j].UpdatedAt.Format("2006-01-02 15:04") {
+						return task[i].ID > task[j].ID
+					}
+					return task[i].UpdatedAt.Format("2006-01-02 15:04") < task[j].UpdatedAt.Format("2006-01-02 15:04")
+				}
+			
+			default:
+				return false
+		}
+	})
+	copy(tasks, task)
+
+	return tasks, nil
 }
