@@ -16,7 +16,7 @@ func NewJsonStore() *JsonStore {
     return &JsonStore{}
 }
 
-func (j *JsonStore)Save(tasks []models.Task) error {
+func (j *JsonStore) Save(tasks []models.Task) error {
    
     path, err := utils.GeneratePath()
     if err != nil {
@@ -32,7 +32,7 @@ func (j *JsonStore)Save(tasks []models.Task) error {
 }
 
 
-func (j *JsonStore)AllList() ([]models.Task, error)  {
+func (j *JsonStore) AllList() ([]models.Task, error)  {
     path, errPath := utils.GeneratePath()
     if errPath != nil {
         return []models.Task{}, errors.New("Generate path failed")
@@ -47,5 +47,6 @@ func (j *JsonStore)AllList() ([]models.Task, error)  {
     if err := json.Unmarshal(content, &data); err != nil {
         return []models.Task{}, errors.New("Error décodage JSON:")
     }
+
     return data, nil
 }
