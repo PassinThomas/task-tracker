@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"task/internal/service"
 	"task/internal/utils"
 
 	"github.com/spf13/cobra"
@@ -24,7 +23,7 @@ var addCmd = &cobra.Command{
 		if errParse != nil {
 			return fmt.Errorf("Bad format: %w", errParse)
 		}
-		task, err := service.Add(args[0])
+		task, err := taskService.Add(args[0])
 		if err != nil {
 			return err
 		}

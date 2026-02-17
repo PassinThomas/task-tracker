@@ -9,13 +9,23 @@ import (
 	
 	"task/models"
 	"task/internal/utils"
-	"task/internal/store"
-
 )
 
-func Add(title string) (*models.Task, error) {
+type TaskStore interface {
+	Save(task []models.Task) error
+	AllList()([]models.Task, error)
+}
 
-	tasks, _ := store.AllList()
+type TaskService struct {
+	store TaskStore
+}
+
+func NewTaskService(store TaskStore) *TaskService {
+	return &TaskService{store: store}
+}
+
+func (s *TaskService) Add(title string) (*models.Task, error) {
+	tasks, _ := s.store.AllList()
     newID := 1
     for _, t := range tasks {
         if t.ID >= newID {
@@ -32,15 +42,15 @@ func Add(title string) (*models.Task, error) {
 
 	tasks = append(tasks, task)
 	
-	if err := store.Save(tasks); err != nil {
+	if err := s.store.Save(tasks); err != nil {
 		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
 	}
 
 	return &task, nil
 }
 
-func Delete(id int) (*models.Task, error) {
-	tasks, err := store.AllList()
+func (s *TaskService) Delete(id int) (*models.Task, error) {
+	tasks, err := s.store.AllList()
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("Cannot delete empty task %w", err)
 	}
@@ -55,7 +65,7 @@ func Delete(id int) (*models.Task, error) {
 			task = append(task, t) 
 		}
 	}
-	err = store.Save(task)
+	err = s.store.Save(task)
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
 	}
@@ -63,13 +73,13 @@ func Delete(id int) (*models.Task, error) {
 	return &delTask, nil
 }
 
-func Update(id int, markDone *bool, newTitle *string) (*models.Task, error) {
-	tasks, err := store.AllList()
+func (s *TaskService) Update(id int, flg models.FlgUpdate) (*models.Task, error) {
+	tasks, err := s.store.AllList()
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("Cannot update empty task %w", err)
 	}
 	
-	if newTitle == nil && markDone == nil {
+	if flg.NewTitle == "" && flg.Done == false && flg.NotDone == false {
         return &models.Task{}, errors.New("No changes requested")
     }
 
@@ -77,31 +87,36 @@ func Update(id int, markDone *bool, newTitle *string) (*models.Task, error) {
 	var taskUpt models.Task
 	for _, t := range tasks {
 		if t.ID == id {
-			if newTitle != nil && *newTitle != "" && *newTitle != t.Title {
-				t.Title = *newTitle
+			if flg.NewTitle != "" && flg.NewTitle != t.Title {
+				t.Title = flg.NewTitle
 				taskUpt = t
 				t.UpdatedAt = time.Now()
 			}
-			if markDone != nil && t.Done != *markDone {
-				t.Done = *markDone
+			if flg.Done {
+				t.Done = flg.Done
 				taskUpt = t
 				t.UpdatedAt = time.Now()
 			}
-			
+			if flg.NotDone {
+				t.Done = false
+				taskUpt = t
+				t.UpdatedAt = time.Now()
+			}
 		}
 		task = append(task, t)
 	}
 	
-	err = store.Save(task)
+	err = s.store.Save(task)
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
 	}
+	
 	return &taskUpt, nil
 }
 
 
-func List() ([]models.Task, error) {
-	tasks, err := store.AllList()
+func (s *TaskService) List() ([]models.Task, error) {
+	tasks, err := s.store.AllList()
 	if err != nil {
 		return []models.Task{}, fmt.Errorf("Failed get All tasks %w", err)
 	}
@@ -109,63 +124,96 @@ func List() ([]models.Task, error) {
 	return tasks, nil
 }
 
-func SortList(tasks []models.Task, sorting map[string]string) ([]models.Task, error) {
-	
-	task, field := []models.Task{}, ""
-	for _, t := range tasks {
-		task = append(task, t)
-	}
+func (s *TaskService) SortList(tasks []models.Task, sorting map[string]string) ([]models.Task, error) {
+	task := make([]models.Task, len(tasks))
+	copy(task, tasks)
+
+	field := ""
+	order := "asc"
+
 	for k, v := range sorting {
 		field = k
-		err := utils.CheckField(field)
-		if err != nil {
-			return []models.Task{}, fmt.Errorf("Flag option undefined: %w", err)
+
+		if err := utils.CheckField(field); err != nil {
+			return nil, fmt.Errorf("flag option undefined: %w", err)
 		}
-		if v != "asc" && v != "" && v != "desc" {
-			return []models.Task{}, errors.New("Bad order flag or undefined")
+
+		if v != "" && v != "asc" && v != "desc" {
+			return nil, errors.New("bad order flag or undefined")
+		}
+
+		if v != "" {
+			order = v
 		}
 	}
-	
-	sort.Slice(task, func(i, j int)bool {
-		switch field {
-			case "title":
-				if sorting[field] == "asc" || sorting[field] == "" {
-					return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)	
-				} else {
-					return strings.ToLower(task[i].Title) > strings.ToLower(task[j].Title)	
-				}
-			
-			case "created":
-				if sorting[field] == "asc" || sorting[field] == "" {
-					if task[i].CreatedAt.Format("2006-01-02 15:04") == task[j].CreatedAt.Format("2006-01-02 15:04") {
-						return task[i].ID < task[j].ID
-					}
-					return task[i].CreatedAt.Format("2006-01-02 15:04") < task[j].CreatedAt.Format("2006-01-02 15:04")
-				} else {
-					if task[i].CreatedAt.Format("2006-01-02 15:04") == task[j].CreatedAt.Format("2006-01-02 15:04") {
-						return task[i].ID > task[j].ID
-					}
-					return task[i].CreatedAt.Format("2006-01-02 15:04") > task[j].CreatedAt.Format("2006-01-02 15:04")
-				}
 
-			case "updated":
-				if sorting[field] == "desc" || sorting[field] == "" {
-					if task[i].UpdatedAt.Format("2006-01-02 15:04") == task[j].UpdatedAt.Format("2006-01-02 15:04") {
-						return task[i].ID < task[j].ID
-					}
-					return task[i].UpdatedAt.Format("2006-01-02 15:04") > task[j].UpdatedAt.Format("2006-01-02 15:04")
-				} else {
-					if task[i].UpdatedAt.Format("2006-01-02 15:04") == task[j].UpdatedAt.Format("2006-01-02 15:04") {
-						return task[i].ID > task[j].ID
-					}
-					return task[i].UpdatedAt.Format("2006-01-02 15:04") < task[j].UpdatedAt.Format("2006-01-02 15:04")
+	sort.Slice(task, func(i, j int) bool {
+		switch field {
+		case "title":
+			if order == "asc" {
+				return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)
+			}
+			return strings.ToLower(task[i].Title) > strings.ToLower(task[j].Title)
+
+		case "created":
+			if task[i].CreatedAt.Equal(task[j].CreatedAt) {
+				if order == "asc" {
+					return task[i].ID < task[j].ID
 				}
-			
-			default:
-				return false
+				return task[i].ID > task[j].ID
+			}
+
+			if order == "asc" {
+				return task[i].CreatedAt.Before(task[j].CreatedAt)
+			}
+			return task[i].CreatedAt.After(task[j].CreatedAt)
+
+		case "updated":
+			if task[i].UpdatedAt.Equal(task[j].UpdatedAt) {
+				if order == "asc" {
+					return task[i].ID < task[j].ID
+				}
+				return task[i].ID > task[j].ID
+			}
+
+			if order == "asc" {
+				return task[i].UpdatedAt.Before(task[j].UpdatedAt)
+			}
+			return task[i].UpdatedAt.After(task[j].UpdatedAt)
+
+		default:
+			return false
 		}
 	})
-	copy(tasks, task)
+	
+	return task, nil
+}
+
+
+func (s *TaskService) ListWithOptions(opts models.ListOptions) ([]models.Task, error) {
+
+	tasks, err := s.store.AllList()
+	if err != nil {
+		return nil, err
+	}
+
+	if opts.Sort != "" {
+		sortOpt := map[string]string{
+			opts.Sort: opts.Order,
+		}
+
+		tasks, err = s.SortList(tasks, sortOpt)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	tmp := tasks
+	tasks = utils.Filter(tasks, opts.Filter)
+
+	if len(tasks) == 0 {
+		tasks = tmp
+	}
 
 	return tasks, nil
 }

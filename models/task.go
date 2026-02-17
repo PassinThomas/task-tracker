@@ -11,3 +11,22 @@ type Task struct {
 	CreatedAt	time.Time	`json:"created_at"`		
 	UpdatedAt	time.Time	`json:"updated_at"`
 }
+
+type FlgUpdate struct {
+	Done		bool
+	NotDone		bool
+	NewTitle	string
+}
+
+type FilterOptions struct {
+	Done		bool
+	Undone		bool
+	Updated		bool
+	NotUpdated	bool
+}
+
+type ListOptions struct {
+	Filter  FilterOptions
+	Sort    string
+	Order   string
+}

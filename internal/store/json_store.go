@@ -1,7 +1,6 @@
 package store
 
 import (
-    // "fmt"
 	"os"
 	"encoding/json"
 	"errors"
@@ -10,7 +9,14 @@ import (
 	"task/models"
 )
 
-func Save(tasks []models.Task) error {
+type JsonStore struct {
+}
+
+func NewJsonStore() *JsonStore {
+    return &JsonStore{}
+}
+
+func (j *JsonStore)Save(tasks []models.Task) error {
    
     path, err := utils.GeneratePath()
     if err != nil {
@@ -26,7 +32,7 @@ func Save(tasks []models.Task) error {
 }
 
 
-func AllList() ([]models.Task, error)  {
+func (j *JsonStore)AllList() ([]models.Task, error)  {
     path, errPath := utils.GeneratePath()
     if errPath != nil {
         return []models.Task{}, errors.New("Generate path failed")

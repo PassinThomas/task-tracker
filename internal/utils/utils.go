@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"strings"
 	"errors"
-
 	"path/filepath"
 	
 	"task/models"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 const (
@@ -19,10 +20,7 @@ const (
     fileStore = "/todo.json"
 )
 
-var (
-	DebugVar bool
-	OptSort = make(map[string]string)
-)
+var DebugVar bool
 
 func ParseStr(s string) error {
 	if strings.TrimSpace(s) == "" {
@@ -36,34 +34,6 @@ func ParseStr(s string) error {
     }
 	return nil
 }
-
-// func SortingTask(sorting string, tasks []models.Task) {
-
-// 	var task []models.Task
-// 	for _, t := range tasks {
-// 		task = append(task, t)
-// 	}
-// 	sort.Slice(task, func(i, j int)bool {
-// 		if sorting == title {
-// 			return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)
-// 		}
-// 		if sorting == date {
-// 			return task[i].CreatedAt.String() > task[j].CreatedAt.String()
-// 		} else if sorting == status {
-//     		statusI := "not-done"
-//     		statusJ := "not-done"
-//     		if task[i].Done {
-//     		    statusI = "done"
-//     		}
-//     		if task[j].Done {
-//     		    statusJ = "done"
-//     		}
-//     		return statusI < statusJ
-// 		}
-// 		return false
-// 	})
-// 	copy(tasks, task)
-// } 
 
 func CheckField(field string) error {
 
@@ -101,4 +71,50 @@ func UpadtedFormat(task models.Task) string {
 	} else {
 		return task.UpdatedAt.Format("2006-01-02 15:04")
 	}
+}
+
+func Filter(tasks []models.Task, filter models.FilterOptions) []models.Task {
+	var filtered []models.Task
+
+    for _, task := range tasks {
+        if filter.Done && !task.Done {
+            continue
+        }
+        if filter.Undone && task.Done {
+            continue
+        }
+        if filter.Updated && task.UpdatedAt.IsZero() {
+            continue
+        }
+        if filter.NotUpdated && !task.UpdatedAt.IsZero() {
+            continue
+        }
+        filtered = append(filtered, task)
+    }
+
+    return filtered
+}
+
+func RenderTasks(tasks []models.Task) {
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.Header([]string{"ID", "Title", "Status", "Created At", "Updated At"})
+
+	for _, task := range tasks {
+
+		status := "undone"
+		if task.Done {
+			status = "done"
+		}
+
+		table.Append([]string{
+			fmt.Sprintf("%v", task.ID),
+			task.Title,
+			status,
+			task.CreatedAt.Format("2006-01-02 15:04"),
+			UpadtedFormat(task),
+		})
+	}
+
+	table.Render()
 }
