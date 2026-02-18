@@ -22,7 +22,7 @@ You can filter tasks with the following flags:
   --not-updated   : show only tasks that have never been updated
 
 You can sort tasks with:
-  --sort <field>  : field to sort by ('title', 'created', 'updated', 'status')
+  --sort <field>  : field to sort by ('title', 'created', 'updated')
   --order <asc|desc> : sort order, ascending or descending
 
 Examples:
@@ -48,8 +48,10 @@ Examples:
 			if err != nil {
 				return err
 			}
+			
 			utils.Debug("todo-list", tasks)
 			utils.RenderTasks(tasks)
+			
 			return nil
 		},
 	}

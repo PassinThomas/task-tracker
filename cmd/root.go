@@ -52,6 +52,7 @@ func init() {
 	updateCmd.Flags().BoolVarP(&flg.Done, "complete", "c", false, "mark done task finished")
 	updateCmd.Flags().BoolVarP(&flg.NotDone, "incomplete", "i", false, "mark undone task not finished")
 	updateCmd.MarkFlagsMutuallyExclusive("complete", "incomplete")
+
 	rootCmd.AddCommand(addCmd, deleteCmd, updateCmd, lstCmd)
 }
 

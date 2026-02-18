@@ -23,20 +23,20 @@ var (
 			"done", flg.Done,
 			"new_task_name", flg.NewTitle,
 		)
-		value, errAtoi := strconv.Atoi(args[0])
+		
+		id, errAtoi := strconv.Atoi(args[0])
 		if errAtoi != nil {
-			return fmt.Errorf("Argument must be a digit")
+			return fmt.Errorf("Fail conversion ID of updateCmd")
 		}
-
-		if value < 1 {
-			 return fmt.Errorf("Id doesn't exist")
-		}
-		task, err := taskService.Update(value, *flg)
+	
+		task, err := taskService.Update(id, *flg)
 		if err != nil {
 			return err
 		}
+
 		utils.Debug("Update task", task)
 		fmt.Printf("✓ Task %d updated successfully\n", task.ID)
+
 		return nil
 	},
 })

@@ -6,10 +6,13 @@ import (
 	"errors"
 	"time"
 	"sort"
+	"math"
 	
 	"task/models"
 	"task/internal/utils"
 )
+
+var ErrIDLimitReached = errors.New("task ID limit reached: cannot add more tasks")
 
 type TaskStore interface {
 	Save(task []models.Task) error
@@ -25,9 +28,21 @@ func NewTaskService(store TaskStore) *TaskService {
 }
 
 func (s *TaskService) Add(title string) (*models.Task, error) {
+	errParse := utils.ParseStr(title)
+	if errParse != nil {
+		return &models.Task{}, fmt.Errorf("Bad format: %w", errParse)
+	}
+
+	if len(title) < 1 {
+		return &models.Task{}, errors.New("Title must not be empty")
+	}
+
 	tasks, _ := s.store.AllList()
     newID := 1
     for _, t := range tasks {
+		if t.ID == math.MaxInt {
+            return nil, ErrIDLimitReached
+        }
         if t.ID >= newID {
             newID = t.ID + 1
         }
@@ -50,6 +65,10 @@ func (s *TaskService) Add(title string) (*models.Task, error) {
 }
 
 func (s *TaskService) Delete(id int) (*models.Task, error) {
+	if id < 1 {
+		return &models.Task{}, errors.New("Id does not exist")
+	}
+	
 	tasks, err := s.store.AllList()
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("Cannot delete empty task %w", err)
@@ -57,14 +76,22 @@ func (s *TaskService) Delete(id int) (*models.Task, error) {
 
 	var task []models.Task
 	var delTask models.Task
+	isChanged := false
+
 	for _, t := range tasks {
 		if t.ID == id {
 			delTask = t
+			isChanged = true
 			continue ;
 		} else {
 			task = append(task, t) 
 		}
 	}
+
+	if !isChanged {
+		return &models.Task{}, errors.New("ID does not match any task")
+	}
+
 	err = s.store.Save(task)
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
@@ -74,6 +101,10 @@ func (s *TaskService) Delete(id int) (*models.Task, error) {
 }
 
 func (s *TaskService) Update(id int, flg models.FlgUpdate) (*models.Task, error) {
+	if id < 1 {
+		return &models.Task{}, fmt.Errorf("ID task does not exist")
+	}
+	
 	tasks, err := s.store.AllList()
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("Cannot update empty task %w", err)
@@ -85,28 +116,41 @@ func (s *TaskService) Update(id int, flg models.FlgUpdate) (*models.Task, error)
 
 	var task []models.Task
 	var taskUpt models.Task
+	found := false
+
 	for _, t := range tasks {
+		
 		if t.ID == id {
+
+			found = true
 			if flg.NewTitle != "" && flg.NewTitle != t.Title {
 				t.Title = flg.NewTitle
 				taskUpt = t
 				t.UpdatedAt = time.Now()
 			}
+
 			if flg.Done {
 				t.Done = flg.Done
 				taskUpt = t
 				t.UpdatedAt = time.Now()
 			}
+
 			if flg.NotDone {
 				t.Done = false
 				taskUpt = t
 				t.UpdatedAt = time.Now()
 			}
 		}
+
 		task = append(task, t)
 	}
+
+	if !found {
+        return &models.Task{}, fmt.Errorf("task with ID %d not found", id)
+    }
 	
 	err = s.store.Save(task)
+	
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
 	}
@@ -149,6 +193,7 @@ func (s *TaskService) SortList(tasks []models.Task, sorting map[string]string) (
 
 	sort.Slice(task, func(i, j int) bool {
 		switch field {
+
 		case "title":
 			if order == "asc" {
 				return strings.ToLower(task[i].Title) < strings.ToLower(task[j].Title)
@@ -191,7 +236,6 @@ func (s *TaskService) SortList(tasks []models.Task, sorting map[string]string) (
 
 
 func (s *TaskService) ListWithOptions(opts models.ListOptions) ([]models.Task, error) {
-
 	tasks, err := s.store.AllList()
 	if err != nil {
 		return nil, err
@@ -203,6 +247,7 @@ func (s *TaskService) ListWithOptions(opts models.ListOptions) ([]models.Task, e
 		}
 
 		tasks, err = s.SortList(tasks, sortOpt)
+		
 		if err != nil {
 			return nil, err
 		}
@@ -210,7 +255,6 @@ func (s *TaskService) ListWithOptions(opts models.ListOptions) ([]models.Task, e
 
 	tmp := tasks
 	tasks = utils.Filter(tasks, opts.Filter)
-
 	if len(tasks) == 0 {
 		tasks = tmp
 	}

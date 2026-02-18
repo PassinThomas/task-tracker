@@ -19,16 +19,15 @@ var addCmd = &cobra.Command{
 			"cmd", "add",
 			"task_name", args[0],
 		)
-		errParse := utils.ParseStr(args[0])
-		if errParse != nil {
-			return fmt.Errorf("Bad format: %w", errParse)
-		}
+
 		task, err := taskService.Add(args[0])
 		if err != nil {
 			return err
 		}
+		
 		utils.Debug("task added", task)
 		fmt.Printf("✓ Task %d created successfully\n", task.ID)
+		
 		return nil
 	},
 }

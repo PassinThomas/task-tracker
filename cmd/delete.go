@@ -20,16 +20,20 @@ var (
 			"cmd", "delete",
 			"task_id", args[0],
 		)
-		v, errAtoi := strconv.Atoi(args[0])
+
+		id, errAtoi := strconv.Atoi(args[0])
 		if errAtoi != nil {
-			return fmt.Errorf("Echec conversion of delete cmd")
+			return fmt.Errorf("Fail conversion ID of deleteCmd")
 		}
-		task, err := taskService.Delete(v)
+
+		task, err := taskService.Delete(id)
 		if err != nil {
 			return err
 		}
+
 		utils.Debug("Task deleted", task)
 		fmt.Printf("✓ Task %d deleted successfully\n", task.ID)
+		
 		return nil
 	},
 })
