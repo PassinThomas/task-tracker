@@ -6,8 +6,9 @@ import (
 	"strings"
 	"errors"
 	"path/filepath"
+	"unicode"
 	
-	"task/models"
+	"github.com/PassinThomas/task-tracker/models"
 
 	"github.com/olekukonko/tablewriter"
 )
@@ -22,7 +23,19 @@ const (
 
 var DebugVar bool
 
+func IsAlpha(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLetter(r) && r != ' '{
+			return false
+		}
+	}
+	return true
+}
+
 func ParseStr(s string) error {
+	if !IsAlpha(s) {
+		return errors.New("Title must be alpha")
+	}
 	if strings.TrimSpace(s) == "" {
 		return errors.New("Input cannot be empty.")
 	}

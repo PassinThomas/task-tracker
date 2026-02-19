@@ -1,7 +1,7 @@
 package main
 
 import(
-	"task/cmd"
+	"github.com/PassinThomas/task-tracker/cmd"
 )
 	
 func main() {

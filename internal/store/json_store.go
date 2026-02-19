@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
     
-    "task/internal/utils"
-	"task/models"
+    "github.com/PassinThomas/task-tracker/internal/utils"
+	"github.com/PassinThomas/task-tracker/models"
 )
 
 type JsonStore struct {

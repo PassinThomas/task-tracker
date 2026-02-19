@@ -8,8 +8,8 @@ import (
 	"sort"
 	"math"
 	
-	"task/models"
-	"task/internal/utils"
+	"github.com/PassinThomas/task-tracker/models"
+	"github.com/PassinThomas/task-tracker/internal/utils"
 )
 
 var ErrIDLimitReached = errors.New("task ID limit reached: cannot add more tasks")
@@ -101,6 +101,17 @@ func (s *TaskService) Delete(id int) (*models.Task, error) {
 }
 
 func (s *TaskService) Update(id int, flg models.FlgUpdate) (*models.Task, error) {
+	if flg.NewTitle == "" && !flg.Done && !flg.NotDone {
+		return &models.Task{}, errors.New("Bad flags input")
+	}
+
+	if flg.NewTitle != "" {
+		err := utils.ParseStr(flg.NewTitle)
+		if err != nil {
+			return &models.Task{}, fmt.Errorf("Update title failed: %w", err)
+		}
+	}
+	
 	if id < 1 {
 		return &models.Task{}, fmt.Errorf("ID task does not exist")
 	}
@@ -125,20 +136,20 @@ func (s *TaskService) Update(id int, flg models.FlgUpdate) (*models.Task, error)
 			found = true
 			if flg.NewTitle != "" && flg.NewTitle != t.Title {
 				t.Title = flg.NewTitle
-				taskUpt = t
 				t.UpdatedAt = time.Now()
+				taskUpt = t
 			}
 
 			if flg.Done {
 				t.Done = flg.Done
-				taskUpt = t
 				t.UpdatedAt = time.Now()
+				taskUpt = t
 			}
 
 			if flg.NotDone {
 				t.Done = false
-				taskUpt = t
 				t.UpdatedAt = time.Now()
+				taskUpt = t
 			}
 		}
 
@@ -150,7 +161,6 @@ func (s *TaskService) Update(id int, flg models.FlgUpdate) (*models.Task, error)
     }
 	
 	err = s.store.Save(task)
-	
 	if err != nil {
 		return &models.Task{}, fmt.Errorf("failed to save changes to disk: %w", err)
 	}

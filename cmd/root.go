@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"task/internal/utils"
-	"task/internal/service"
-	"task/internal/store"
-	"task/models"
+	"github.com/PassinThomas/task-tracker/internal/utils"
+	"github.com/PassinThomas/task-tracker/internal/service"
+	"github.com/PassinThomas/task-tracker/internal/store"
+	"github.com/PassinThomas/task-tracker/models"
 
 	"github.com/spf13/cobra"
 )

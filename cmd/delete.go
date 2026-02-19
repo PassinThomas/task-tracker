@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"task/internal/utils"
+	"github.com/PassinThomas/task-tracker/internal/utils"
 
 	"github.com/spf13/cobra"
 )

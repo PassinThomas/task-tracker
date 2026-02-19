@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"task/internal/utils"
+	"github.com/PassinThomas/task-tracker/internal/utils"
 	"strconv"
 
 	"github.com/spf13/cobra"

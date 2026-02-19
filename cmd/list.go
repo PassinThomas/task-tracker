@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"task/models"
-	"task/internal/utils"
+	"github.com/PassinThomas/task-tracker/models"
+	"github.com/PassinThomas/task-tracker/internal/utils"
 
 	"github.com/spf13/cobra"
 )
