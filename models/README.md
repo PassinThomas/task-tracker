@@ -66,6 +66,3 @@ Les tags `json:` permettent de contrôler la sérialisation :
   "updated_at": "2026-03-10T14:25:00Z"
 }
 ```
-```
-
-Prêt à copier ! 🚀
