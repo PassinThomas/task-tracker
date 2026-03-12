@@ -44,4 +44,3 @@ task delete 1
 - Architecture modulaire et testable
 - Facile à étendre (ajouter une BD, une API, etc.)
 - Interface CLI intuitive et bien documentée
-```
