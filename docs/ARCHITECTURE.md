@@ -55,10 +55,10 @@ type TaskService struct {
 ## Détails par couche
 
 Voir les README spécifiques :
-- [cmd/README.md](../../cmd/README.md) : Interface CLI
-- [internal/service/README.md](../../internal/service/README.md) : Logique métier
-- [internal/store/README.md](../../internal/store/README.md) : Abstraction stockage
-- [models/README.md](../../models/README.md) : Structures de données
+- [cmd/README.md](../cmd/README.md) : Interface CLI
+- [internal/service/README.md](../internal/service/README.md) : Logique métier
+- [internal/store/README.md](../internal/store/README.md) : Abstraction stockage
+- [models/README.md](../models/README.md) : Structures de données
 
 ## Extensibilité future
 
