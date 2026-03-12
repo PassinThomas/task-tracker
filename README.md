@@ -1,6 +1,3 @@
-Voici le README complet avec la section Quick Start nettoyée que tu peux copier-coller :
-
-```markdown
 # 📋 Task Tracker CLI
 
 > Un gestionnaire de tâches en ligne de commande moderne et performant, développé en Go
@@ -48,3 +45,4 @@ task delete 1
 - Facile à étendre (ajouter une BD, une API, etc.)
 - Interface CLI intuitive et bien documentée
 ```
+
