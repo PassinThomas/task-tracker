@@ -1,6 +1,3 @@
-Voici le README amélioré à copier-coller :
-
-```markdown
 # 📊 Models - Structures de Données
 
 ## Task
