@@ -1,3 +1,6 @@
+Voici le README complet avec la section Quick Start nettoyée que tu peux copier-coller :
+
+```markdown
 # 📋 Task Tracker CLI
 
 > Un gestionnaire de tâches en ligne de commande moderne et performant, développé en Go
@@ -10,22 +13,20 @@
 
 ## Quick Start
 
-### Installation rapide
-\`\`\`bash
+```bash
+# Installation et démarrage
 git clone https://github.com/PassinThomas/task-tracker.git
 cd task-tracker
 make build
 ./bin/task --help
-\`\`\`
 
-### 5 commandes de base
-\`\`\`bash
+# 5 commandes de base
 task add "Ma première tâche"
 task list
 task update 1 --complete
 task list --done
 task delete 1
-\`\`\`
+```
 
 ## 📚 Documentation complète
 - **[Installation détaillée](./docs/INSTALLATION.md)** : Go, dépendances, Makefile
@@ -46,3 +47,4 @@ task delete 1
 - Architecture modulaire et testable
 - Facile à étendre (ajouter une BD, une API, etc.)
 - Interface CLI intuitive et bien documentée
+```
