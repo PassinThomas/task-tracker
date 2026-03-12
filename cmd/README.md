@@ -1,9 +1,9 @@
 # 📖 Guide des Commandes
 
 ## Syntaxe générale
-\`\`\`bash
+```bash
 task [commande] [arguments] [flags]
-\`\`\`
+```
 
 ## Vue d'ensemble
 
@@ -20,15 +20,15 @@ task [commande] [arguments] [flags]
 ## 1️⃣ `task add` - Ajouter une tâche
 
 ### Syntaxe
-\`\`\`bash
+```bash
 task add "<titre de la tâche>"
-\`\`\`
+```
 
 ### Exemples
-\`\`\`bash
+```bash
 task add "Acheter du lait"
 task add "Préparer la présentation" --debug
-\`\`\`
+```
 
 ### Détails techniques
 - ID auto-incrémenté
@@ -51,15 +51,15 @@ task add "Préparer la présentation" --debug
 ## Cas d'usage complets
 
 ### Workflow quotidien
-\`\`\`bash
+```bash
 task add "Répondre aux emails"
 task list
 task update 1 --complete
 task list --undone
-\`\`\`
+```
 
 ### Debug
-\`\`\`bash
+```bash
 task add "Test" --debug
 task list --sort updated --debug
 \`\`\`
