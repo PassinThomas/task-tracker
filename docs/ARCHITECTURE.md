@@ -81,4 +81,4 @@ taskService := service.NewTaskService(store)
 
 ### Ajouter une nouvelle commande
 
-Voir [cmd/README.md](../../cmd/README.md)
+Voir [cmd/README.md](../cmd/README.md)
