@@ -1,6 +1,3 @@
-Voici le contenu du fichier que tu peux copier-coller :
-
-```markdown
 # 🧠 Service Layer - Logique Métier
 
 ## Responsabilité
