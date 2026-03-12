@@ -31,7 +31,9 @@ task delete 1
 - **[Installation détaillée](./docs/INSTALLATION.md)** : Go, dépendances, Makefile
 - **[Guide des commandes](./cmd/README.md)** : toutes les commandes et flags
 - **[Architecture](./docs/ARCHITECTURE.md)** : structure du projet, design patterns
-- **[Développement interne](./internal/README.md)** : service, store, modèles
+- **[Logique métier (Service)](./internal/service/README.md)** : tri, filtrage, validation
+- **[Persistance des données (Store)](./internal/store/README.md)** : stockage JSON, extensibilité BD
+- **[Structures de données (Models)](./models/README.md)** : schéma Task, formats JSON
 
 ## ✨ Fonctionnalités principales
 - ✅ Ajouter/Supprimer/Mettre à jour des tâches
