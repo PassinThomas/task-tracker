@@ -1,3 +1,6 @@
+Voici le contenu du fichier que tu peux copier-coller :
+
+```markdown
 # 🧠 Service Layer - Logique Métier
 
 ## Responsabilité
@@ -15,7 +18,7 @@ Le service (`TaskService`) contient toute la logique métier :
 
 ## Architecture
 
-\`\`\`go
+```go
 type TaskService struct {
     store TaskStore  // Injection de dépendance
 }
@@ -24,7 +27,7 @@ type TaskStore interface {
     Save(tasks []models.Task) error
     AllList() ([]models.Task, error)
 }
-\`\`\`
+```
 
 ## Principales fonctions
 
@@ -58,7 +61,7 @@ Tri par :
 
 Le service est testé avec un `MockStore` :
 
-\`\`\`go
+```go
 type MockStore struct {
     tasks []models.Task
 }
@@ -69,7 +72,7 @@ func TestAddTask(t *testing.T) {
     service := NewTaskService(store)
     // ...
 }
-\`\`\`
+```
 
 ## Extensibilité
 
@@ -80,8 +83,8 @@ Pour ajouter une nouvelle fonctionnalité :
 3. Créer une nouvelle commande dans `cmd/`
 
 Exemple : ajouter la recherche par titre
-\`\`\`go
+```go
 func (ts *TaskService) SearchByTitle(query string) []models.Task {
     // Logique indépendante du stockage
 }
-\`\`\`
+```
