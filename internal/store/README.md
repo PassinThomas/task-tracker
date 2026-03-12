@@ -6,22 +6,24 @@ Le store définit **comment** les données sont persistées.
 
 ## Interface TaskStore
 
-\`\`\`go
+```go
 type TaskStore interface {
     Save(tasks []models.Task) error
     AllList() ([]models.Task, error)
 }
-\`\`\`
+```
 
 Toute implémentation (JSON, SQL, Redis) doit respecter cette interface.
 
 ## Implémentation actuelle : JsonStore
 
-Fichier : `json_store.go`
+**Fichier :** `json_store.go`
 
-Sauvegarde en JSON local : `~/.config/.mycli/todo.json`
+**Localisation :** `~/.config/.mycli/todo.json`
 
-\`\`\`json
+Exemple de structure JSON :
+
+```json
 [
   {
     "id": 1,
@@ -31,13 +33,13 @@ Sauvegarde en JSON local : `~/.config/.mycli/todo.json`
     "updated_at": "0001-01-01T00:00:00Z"
   }
 ]
-\`\`\`
+```
 
 ## Ajouter une nouvelle implémentation
 
 ### Exemple : PostgreSQL
 
-\`\`\`go
+```go
 // internal/store/postgres_store.go
 package store
 
@@ -68,11 +70,11 @@ func (ps *PostgresStore) AllList() ([]models.Task, error) {
     rows, _ := ps.db.Query("SELECT id, title, done, created_at, updated_at FROM tasks")
     // ...
 }
-\`\`\`
+```
 
-### Puis adapter cmd/root.go
+### Adapter cmd/root.go
 
-\`\`\`go
+```go
 // cmd/root.go
 var taskService *service.TaskService
 
@@ -85,13 +87,13 @@ func init() {
     
     taskService = service.NewTaskService(store)
 }
-\`\`\`
+```
 
 ## Migrations
 
-Si vous passez de JSON à PostgreSQL, prévoir une étape de **migration** :
+Pour passer de JSON à PostgreSQL, prévoir une étape de migration :
 
-\`\`\`go
+```go
 // tools/migrate.go
 func MigrateJsonToPostgres(jsonPath, pgConnString string) error {
     // Lire depuis JSON
@@ -102,4 +104,4 @@ func MigrateJsonToPostgres(jsonPath, pgConnString string) error {
     pgStore, _ := store.NewPostgresStore(pgConnString)
     return pgStore.Save(tasks)
 }
-\`\`\`
+```
